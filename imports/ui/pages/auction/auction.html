@@ -12,15 +12,14 @@
     <option value={{index}}>{{amount}}</option>
     {{/each}}
 </select>
-<button class='customBidMake'>Custom Bid</button>
-<button class='bidNext'>Bid</button>
+<button class='customBidMake'>Bid</button>
 
 <br>
 NextBid: {{nextBid}}
 Bids:
 <ul>
 {{#each bids}}
-<li>{{hashedUsername}}:{{amount}}</li>
+<li>{{hashedUsername}}:{{amount}}, {{date.date}} {{date.time}}</li>
 {{/each}}
 </ul>
 

@@ -1,13 +1,9 @@
 TODO:
-confirm bid dialog
-date/time on bid, and show it separately
-description field
 add time picker to form
 //select control for type of auctions?
-single bit button
-time until auction end/expired
-change from createdAt
+change from createdAt, to user set date, for start of auction
 the bid behaviour for ordinary item is wrong
+end start auction cron job
 
 low:
 remove remove all methods, and the buttons

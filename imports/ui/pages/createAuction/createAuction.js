@@ -1,6 +1,7 @@
 import './createAuction.html';
 
 import {Auctions, AuctionTypes} from '../../../api/cols.js'
+import { FlowRouter } from 'meteor/kadira:flow-router';
 
 
 Template.createAuction.onCreated(function () {
@@ -20,12 +21,13 @@ Template.createAuction.events({
     const target = event.target;
     const {title: { value: tV }, type: { value: typeV }, minimum: { value: mV }} = target
 
-    Meteor.call('auctions.insert', {title: tV, type: typeV, minimum: mV}, (error) => {
-      if (error) {
-        alert(error.error);
-      } else {
-
-      }
-    });
+    Meteor.call('auctions.insert', {title: tV, type: typeV, minimum: mV}, (err, res)=>{
+        console.log(res)
+        if (err){
+          console.log(err)
+        } else {
+                  FlowRouter.go('App.auction', {auctionId: res})
+        }
+      });
   },
 });

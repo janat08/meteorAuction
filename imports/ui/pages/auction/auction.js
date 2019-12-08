@@ -1,12 +1,21 @@
 import './auction.html';
 
-import {Auctions, Bids, BidTypes} from '../../../api/cols.js'
+import { Auctions, Bids, BidTypes } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
-Template.auction.onCreated(function () {
-  Meteor.subscribe('auctions.all');
-  Meteor.subscribe('bids.all')
+Template.auction.onCreated(function() {
+  const auReady = Meteor.subscribe('auctions.all');
+  const biReady = Meteor.subscribe('bids.all')
   this.bidType = new ReactiveVar(0)
+  this.autorun(() => {
+    const id = FlowRouter.getParam("auctionId")
+    const auction = Auctions.findOne(id)
+    if (auReady.ready() && biReady.ready()){
+      const bids = Bids.find({auctionId: id}, { sort: { index: -1 } }).fetch()
+      this.bidType.set(bids[0])
+      console.log(bids)
+    }
+  })
 });
 
 Template.auction.helpers({
@@ -15,18 +24,21 @@ Template.auction.helpers({
 
     return res;
   },
-  bid(){
-    const {_id} = this
-    const bids = Bids.find({}, {sort: {date: -1}}).fetch()
-    const templ = Template.instance()
-    templ.bidType.set(bids[0])
-    return bids
+  bids() {
+    let res = Bids.find({ show: { $ne: false } })
+    return res
   }
 });
 
 Template.auction.events({
-  'click .bid'(event) {
-    Meteor.call('bid', )
+  'click .bid' (event, templ) {
+    const index = templ.bidType.get()+1
+    const amount = BidTypes[index]
+    Meteor.call('bids.insert', 
+      { auctionId: FlowRouter.getParam("auctionId"),
+      index,
+      amount,
+      })
     console.log('bidding')
   },
 });

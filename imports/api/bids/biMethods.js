@@ -1,10 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-import {Auctions, Bids, Intervals} from '../cols.js'
+import {Auctions, Bids, BidTypes} from '../cols.js'
 
 Meteor.methods({
-    "bids.insert"({auctionId, index, amount, show}){
-        if (Intervals[index] !== amount) throw new Meteor.Error()
+    "bids.insert"({auctionId, index, amount, show = true}){
+        console.log(BidTypes[index], amount)
+        if (BidTypes[index] !== amount) throw new Meteor.Error("wrong amount")
         const bidder = this.userId
-        Bids.insert({userId: bidder, auctionId, date: new Date(), index, amount, show})
+        Bids.insert({auctionIdIndex: auctionId+index, userId: bidder, auctionId, date: new Date(), index, amount, show})
+    },
+    "bids.remove.all"(){
+        console.log('removing bids')
+        Bids.remove({show: true})
     }
 })

@@ -8,6 +8,7 @@ Template.auctionList.onCreated(function () {
 
 Template.auctionList.helpers({
   auctions(){
+    console.log(Auctions.find().fetch())
       return Auctions.find()
   }
 });

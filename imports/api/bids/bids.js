@@ -8,3 +8,8 @@ const typePrices = [30, 100, 300]
 export const BidTypeIndexes = typePrices.map(x=>{
     return BidTypes.indexOf(x)
 })
+
+if (Meteor.isServer){
+    //so that people can't make two conflicting bids
+ Bids._ensureIndex({auctionIdIndex: 1}, {unique: 1});   
+}

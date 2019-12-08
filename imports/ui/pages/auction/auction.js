@@ -1,18 +1,21 @@
-import { Links } from '/imports/api/links/links.js';
-import { Meteor } from 'meteor/meteor';
-import './info.html';
+import './auction.html';
 
-Template.info.onCreated(function () {
-  Meteor.subscribe('links.all');
+import {Auctions} from '../../../api/cols.js'
+import { FlowRouter } from 'meteor/kadira:flow-router';
+
+Template.auction.onCreated(function () {
+  Meteor.subscribe('auctions.all');
 });
 
-Template.info.helpers({
-  links() {
-    return Links.find({});
+Template.auction.helpers({
+  auction() {
+    const res = Auctions.findOne(FlowRouter.getParam("auctionId"))
+
+    return res;
   },
 });
 
-Template.info.events({
+Template.auction.events({
   'submit .info-link-add'(event) {
     event.preventDefault();
 

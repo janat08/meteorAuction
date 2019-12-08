@@ -6,7 +6,7 @@ Meteor.methods({
         console.log(BidTypes[index], amount)
         if (BidTypes[index] !== amount) throw new Meteor.Error("wrong amount")
         const bidder = this.userId
-        Bids.insert({auctionIdIndex: auctionId+index, userId: bidder, auctionId, date: new Date(), index, amount, show})
+        Bids.insert({hashedUsername: Meteor.user().profile.hashedUsername, auctionIdIndex: auctionId+index, userId: bidder, auctionId, date: new Date(), index, amount, show})
     },
     "bids.remove.all"(){
         console.log('removing bids')

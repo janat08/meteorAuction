@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import {Auctions, AuctionTypes, BidTypeIndexes, BidTypes} from '../cols.js'
 
 Meteor.methods({
-    'auctions.insert'({title, type: typeText, minimum}) {
+    'auctions.insert'({title, type: typeText, minimum, description}) {
+      const now = new Date()
       const type = typeText*1
       console.log(AuctionTypes)
     if ([0,1,2].indexOf(type) == -1) throw new Meteor.Error("Error")
@@ -12,6 +13,7 @@ Meteor.methods({
       minimum,
       typeName: AuctionTypes[type],
       createdAt: new Date(),
+      description,
     });
     if (type != 0){
           const typeIndex = BidTypeIndexes[type]-1

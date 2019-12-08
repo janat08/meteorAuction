@@ -4,13 +4,21 @@
 {{typeName}}
     {{#with bid}}
     {{/with}}
-        <button class='bid'>Bid</button>
+    
+<select class="customBidSelect" value={{selectFieldValue}}>
+    {{#each possibleBids}}
+    <option value={{index}}>{{amount}}</option>
+    {{/each}}
+</select>
+<button class='customBidMake'>Custom Bid</button>
+<button class='bidNext'>Bid</button>
 
 <br>
+NextBid: {{nextBid}}
 Bids:
 <ul>
 {{#each bids}}
-{{amount}}
+<li>{{hashedUsername}}:{{amount}}</li>
 {{/each}}
 </ul>
 

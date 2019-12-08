@@ -11,3 +11,5 @@ import '../../api/maxBids/server/publications.js';
 
 import '../../api/images/methods.js';
 import '../../api/images/server/publications.js';
+
+import '../../api/users/users.js'

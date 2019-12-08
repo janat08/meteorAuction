@@ -2,12 +2,14 @@ import './auction.html';
 
 import { Auctions, Bids, BidTypes } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
+import dayjs from 'dayjs'
 
 Template.auction.onCreated(function() {
   const auReady = Meteor.subscribe('auctions.all');
   const biReady = Meteor.subscribe('bids.all')
   this.bidType = new ReactiveVar(0)
   this.customBid = new ReactiveVar(0)
+  this.timeTicker = new ReactiveVar(0)
   this.autorun(() => {
     const id = FlowRouter.getParam("auctionId")
     const auction = Auctions.findOne(id)
@@ -20,6 +22,9 @@ Template.auction.onCreated(function() {
   this.autorun(()=>{
     console.log("state", this.bidType.get(), this.customBid.get(), BidTypes[this.customBid.get()])
   })
+  this.interval = setInterval(()=>{
+    this.timeTicker.set('')
+  }, 60)
 });
 
 Template.auction.helpers({
@@ -48,6 +53,14 @@ Template.auction.helpers({
   },
   selectFieldValue(){
     return Template.instance().customBid.get()+""
+  },
+  whenEnds(){
+    Template.instance().timeTicker.get()
+    console.log("time", dayjs(this.createdAt).add(3, 'day'))
+    const end = dayjs(this.createdAt).add(3, 'day')
+    const now = dayjs()
+    console.log("ticker",now.from(end))
+    return now.to(end)
   }
 });
 
@@ -83,3 +96,8 @@ Template.auction.events({
     console.log('bidding')
   },
 });
+
+
+Template.auction.onDestroyed(function(){
+  clearInterval(this.interval)
+})

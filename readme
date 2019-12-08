@@ -2,10 +2,12 @@ TODO:
 confirm bid dialog
 date/time on bid, and show it separately
 description field
+add time picker to form
 //select control for type of auctions?
 single bit button
 time until auction end/expired
-
+change from createdAt
+the bid behaviour for ordinary item is wrong
 
 low:
 remove remove all methods, and the buttons

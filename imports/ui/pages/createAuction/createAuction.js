@@ -22,18 +22,27 @@ Template.createAuction.helpers({
 Template.createAuction.events({
   'submit'(event, templ) {
     event.preventDefault();
-
+console.log('submitting')
     const target = event.target;
-    const {title: { value: tV }, date: { value: dateV }, hour: { value: hourV }, minute: { value: minuteV}, description: { value: dV }, type: { value: typeV }, minimum: { value: mV }} = target
-    const date = dayjs(dateV)
-    console.log(date.toString(), dayjs(timeV).toString())
-    if (!date.isValid() || true){
-      console.log('invalid date')
-      return
-    }
-    if (templ.time )
+    const {
+      title: { value: tV }, 
+    // date: { value: dateV }, 
+    // hour: { value: hourV }, 
+    // minute: { value: minuteV}, 
+    description: { value: dV }, type: { value: typeV }, minimum: { value: mV }} = target
+    // const date = dayjs(dateV+ " "+ hourV+":"+minuteV)
+    // console.log(date.hour(hourV).minute(minuteV).toString(), dateV+ " "+ hourV+":"+minuteV)
+    // if (!date.isValid() || true){
+    //   console.log('invalid date')
+    //   return
+    // }
+    
+    //compare times
+    // if (templ.time.isSame(dayjs()))
+    console.log('submitting')
+
     Meteor.call('auctions.insert', {title: tV, type: typeV, minimum: mV, description: dV}, (err, res)=>{
-        console.log(res)
+console.log('submitting')
         if (err){
           console.log(err)
         } else {

@@ -2,6 +2,7 @@ TODO:
 add time picker to form
 display start time when auction created
 maxBid
+start redirecting on create again
 create image form
 //select control for type of auctions?
 change from createdAt, to user set date, for start of auction

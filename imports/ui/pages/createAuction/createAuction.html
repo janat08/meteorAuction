@@ -1,5 +1,18 @@
 <template name="createAuction">
 <form id='createAuction'>
+    {{#each currentUpload}}
+        {{#if upload}}
+    Uploading <b>{{upload.file.name}}</b>:
+    <span id="progress">{{upload.progress.get}}%</span>
+    {{else}}
+        <img src="{{link}}" alt="{{name}}" />
+        <button class='jsRemovePic'>Remove</button>
+    {{/if}}
+  {{/each}}
+        <input id="fileInput" type="file" multiple/>
+      Don't forget to click save Product, after adding images
+      
+      
     type: <select name='type'>
     {{#each type in types}}
     <option value="{{@index}}">{{type}}</option>

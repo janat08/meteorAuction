@@ -14,11 +14,11 @@ dayjs.extend(customParseFormat)
 //flatpickr won't import styles, if styles imported manually nothing shows up
 
 Template.createAuction.onCreated(function() {
-    this.currentUpload = new ReactiveArray()
-    //meant to cause reactivity on object updates in current upload
-    this.insertedUploads = new ReactiveVar(0) 
-     //used to assign ids to files, so that there're unique ids between consequtive upload batches
-    this.numberOfRuns = 0
+  this.currentUpload = new ReactiveArray()
+  //meant to cause reactivity on object updates in current upload
+  this.insertedUploads = new ReactiveVar(0)
+  //used to assign ids to files, so that there're unique ids between consequtive upload batches
+  this.numberOfRuns = 0
 });
 Template.createAuction.onRendered(function() {
 
@@ -64,9 +64,14 @@ Template.createAuction.events({
     }
 
     const images = templ.currentUpload
-    console.log(images)
 
-    var document = { imageIds: images.map(x=>x.doc._id), title: tV, type: typeV, minimum: mV, description: dV }
+    var document = {
+      imageIds: images.map(x => x.doc._id),
+      title: tV,
+      type: typeV,
+      minimum: mV * 1,
+      description: dV
+    }
 
     //if time is unchanged then don't set startDate
     if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
@@ -78,7 +83,6 @@ Template.createAuction.events({
         alert(err)
       }
       else {
-        return
         FlowRouter.go('App.auction', { auctionId: res })
       }
     });

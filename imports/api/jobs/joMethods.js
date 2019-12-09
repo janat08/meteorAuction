@@ -10,7 +10,7 @@ Jobs.register({
     },
     "deactivateAuction": function (id) {
         console.log('running deactivate')
-        Auctions.update(id, {$set: {active: false}})
+        Auctions.update(id, {$set: {active: false, finished: true}})
         this.remove()
     }
 });

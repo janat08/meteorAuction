@@ -12,6 +12,19 @@ Template.auction.onCreated(function() {
   this.bidType = new ReactiveVar(0)
   this.customBid = new ReactiveVar(0)
   this.timeTicker = new ReactiveVar(0)
+  
+    //ticks for every minute
+  const templ = this
+  function ticker() {
+    const now = dayjs()
+    const inMinute = now.second(0).millisecond(0).add(1, 'm') - now
+    clearTimeout(templ.timeOut)
+    templ.timeOut = setTimeout(() => {
+      templ.timeTicker.set(new Date())
+      ticker()
+    }, inMinute)
+  }
+  
   this.autorun(() => {
     const id = FlowRouter.getParam("auctionId")
     const auction = Auctions.findOne(id)
@@ -20,13 +33,11 @@ Template.auction.onCreated(function() {
       this.bidType.set(bids[0].index * 1)
       console.log(bids[0])
     }
+    ticker()
   })
   this.autorun(() => {
     console.log("state", this.bidType.get(), this.customBid.get(), BidTypes[this.customBid.get()])
   })
-  this.interval = setInterval(() => {
-    this.timeTicker.set('')
-  }, 60)
 });
 
 Template.auction.helpers({
@@ -36,11 +47,11 @@ Template.auction.helpers({
     return res;
   },
   bids() {
-    let res = Bids.find({ show: { $ne: false } }, { sort: { amount: -1 } }).map(x=>{
-          const date = dayjs(x.date)
-          x.date = {date: date.format('D/M/YY'), time: date.format('hh:mm')}
-          console.log(x.date)
-          return x
+    let res = Bids.find({ show: { $ne: false } }, { sort: { amount: -1 } }).map(x => {
+      const date = dayjs(x.date)
+      x.date = { date: date.format('D/M/YY'), time: date.format('hh:mm') }
+      console.log(x.date)
+      return x
     })
     return res
   },
@@ -63,10 +74,14 @@ Template.auction.helpers({
   },
   whenEnds() {
     Template.instance().timeTicker.get()
+    const { startDate, createdAt } = this
     const end = dayjs(this.createdAt).add(3, 'day')
     const now = dayjs()
-    if (now.isAfter(end)){
+    if (now.isAfter(end)) {
       return "EXPIRED"
+    }
+    if (startDate && now.isBefore(dayjs(startDate))) {
+      return "Hasn't begun, starts in: " + humanize(startDate - now, { units: ['d', 'h', 'm'], round: true })
     }
     const diff = end - now
     return "Ends In " + humanize(diff, { units: ['d', 'h', 'm'], round: true })
@@ -101,5 +116,5 @@ Template.auction.events({
 
 
 Template.auction.onDestroyed(function() {
-  clearInterval(this.interval)
+  clearTimeout(this.timeOut)
 })

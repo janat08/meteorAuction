@@ -68,7 +68,7 @@ Template.auction.helpers({
       return "EXPIRED"
     }
     const diff = end - now
-    return "Ends In" + humanize(diff, { units: ['d', 'h', 'm'], round: true })
+    return "Ends In " + humanize(diff, { units: ['d', 'h', 'm'], round: true })
   }
 });
 

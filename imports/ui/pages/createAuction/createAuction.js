@@ -1,53 +1,71 @@
 import './createAuction.html';
 
-import {Auctions, AuctionTypes} from '../../../api/cols.js'
+import { Auctions, AuctionTypes } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import dayjs from 'dayjs'
-window.dayjs = dayjs
-Template.createAuction.onCreated(function () {
-  Meteor.subscribe('links.all');
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(customParseFormat)
+
+// import 'gijgo'
+//import './ginjgo.css'
+// import flatpickr from "flatpickr";
+//import './flatpicker.js'
+//gijgo freezes with recursive calls
+//flatpickr won't import styles, if styles imported manually nothing shows up
+Template.createAuction.onCreated(function() {
+
 });
+Template.createAuction.onRendered(function() {
+
+})
 
 Template.createAuction.helpers({
   types() {
     return AuctionTypes;
   },
-  dateTime(){
+  dateTime() {
     const time = dayjs()
     Template.instance().time = time
-    return {hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm')}
+    return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
   }
 });
 
 Template.createAuction.events({
-  'submit'(event, templ) {
+  'submit #createAuction' (event, templ) {
     event.preventDefault();
-console.log('submitting')
     const target = event.target;
     const {
-      title: { value: tV }, 
-    // date: { value: dateV }, 
-    // hour: { value: hourV }, 
-    // minute: { value: minuteV}, 
-    description: { value: dV }, type: { value: typeV }, minimum: { value: mV }} = target
-    // const date = dayjs(dateV+ " "+ hourV+":"+minuteV)
-    // console.log(date.hour(hourV).minute(minuteV).toString(), dateV+ " "+ hourV+":"+minuteV)
-    // if (!date.isValid() || true){
-    //   console.log('invalid date')
-    //   return
-    // }
-    
-    //compare times
-    // if (templ.time.isSame(dayjs()))
-    console.log('submitting')
+      title: { value: tV },
+      date: { value: dateV },
+      hour: { value: hourV },
+      minute: { value: minuteV },
+      description: { value: dV },
+      type: { value: typeV },
+      minimum: { value: mV }
+    } = target
+    var date = dayjs(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
 
-    Meteor.call('auctions.insert', {title: tV, type: typeV, minimum: mV, description: dV}, (err, res)=>{
-console.log('submitting')
-        if (err){
-          console.log(err)
-        } else {
-                  FlowRouter.go('App.auction', {auctionId: res})
+    if (!date.isValid()) {
+      alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
+      return
+    }
+    console.log(date)
+    var document = {title: tV, type: typeV, minimum: mV, description: dV }
+    
+    //if time is unchanged then don't set startDate
+    if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
+       document.startDate = date.unix()
+    }
+    
+      Meteor.call('auctions.insert', document , (err, res) => {
+        if (err) {
+          alert(err)
+        }
+        else {
+          return
+          FlowRouter.go('App.auction', { auctionId: res })
         }
       });
+    
   },
 });

@@ -1,5 +1,5 @@
 <template name="createAuction">
-<form>
+<form id='createAuction'>
     type: <select name='type'>
     {{#each type in types}}
     <option value="{{@index}}">{{type}}</option>
@@ -8,11 +8,12 @@
 title: <input name='title'>
 minimum: <input name='minimum'>
 description: <textarea name="description"></textarea>
+<div class='dateTime'></div>
 {{#with dateTime}}
-<!--when to start: date: <input name='date' value={{date}} placeholder="1/30/2000"> -->
-<!--hour: <input value={{hour}} placeholder="20 or 1:00 PM" name='hour'>-->
-<!-- minute: <input value={{minute}} placeholder="59" name='minute'>-->
+when to start: date: <input name='date' value={{date}} placeholder="1/30/2000"> 
+hour: <input value={{hour}} placeholder="20 or 1:00 PM" name='hour'>
+ minute: <input value={{minute}} placeholder="59" name='minute'>
 {{/with}}
-<input type='submit' value="submit">
+<input type='submit'  value="submit">
 </form>
 </template>

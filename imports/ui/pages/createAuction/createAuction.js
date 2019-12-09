@@ -21,7 +21,9 @@ Template.createAuction.onCreated(function() {
   this.numberOfRuns = 0
 });
 Template.createAuction.onRendered(function() {
-
+$('#myModal').on('shown.bs.modal', function () {
+  $('#myInput').trigger('focus')
+})
 })
 
 Template.createAuction.helpers({

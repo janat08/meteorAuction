@@ -1,13 +1,12 @@
 TODO:
-minimum bid logic
-display start time when auction created
 maxBid
-ticker isn't working
-start redirecting on create again
-//select control for type of auctions?
-change from createdAt, to user set date, for start of auction
+recursively? make sure that bids are in alternating order between users
+handle maxbid making bids without userId present by passing userid, and verifying server side call
+remove index values from bids, and check that specific bids are used differently
 the bid behaviour for ordinary item is wrong
+minimum bid logic
 auction type selector, new/lux/ordinary
+am I handling error for rejected bid since its too slow
 
 low:
 remove remove all methods, and the buttons

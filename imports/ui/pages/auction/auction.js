@@ -12,9 +12,10 @@ Template.auction.onCreated(function() {
   this.bidType = new ReactiveVar(0)
   this.customBid = new ReactiveVar(0)
   this.timeTicker = new ReactiveVar(0)
-  
-    //ticks for every minute
+
+  //ticks for every minute
   const templ = this
+
   function ticker() {
     const now = dayjs()
     const inMinute = now.second(0).millisecond(0).add(1, 'm') - now
@@ -24,7 +25,7 @@ Template.auction.onCreated(function() {
       ticker()
     }, inMinute)
   }
-  
+
   this.autorun(() => {
     const id = FlowRouter.getParam("auctionId")
     const auction = Auctions.findOne(id)
@@ -92,28 +93,30 @@ Template.auction.events({
   'change .customBidSelect' (event, templ) {
     templ.customBid.set(event.target.value)
   },
-  'click .customBidMake' (event, templ) {
-    const index = templ.customBid.get()
-    const amount = BidTypes[index]
-    const res = window.confirm("Would you like to bid for " + amount)
-    if (res) {
-      Meteor.call('bids.insert', {
-        auctionId: FlowRouter.getParam("auctionId"),
-        index,
-        amount,
-      }, (err, res) => {
-        if (err) {
-          alert("Another user made the same bid before you")
-        }
-        else {
-          $('.customBidSelect').val(0)
-        }
-      })
-    }
-
+  'click .justBidJs': makeBid,
+  'click .setMaxJs' (event, templ) {
+    makeBid(event, templ)
+    Meteor.call('maxBids.insert')
   },
 });
 
+function makeBid(event, templ) {
+  const index = templ.customBid.get()
+  const amount = BidTypes[index]
+  // const res = window.confirm("Would you like to bid for " + amount)
+  Meteor.call('bids.insert', {
+    auctionId: FlowRouter.getParam("auctionId"),
+    index,
+    amount,
+  }, (err, res) => {
+    if (err) {
+      alert("Another user made the same bid before you")
+    }
+    else {
+      $('.customBidSelect').val(0)
+    }
+  })
+}
 
 Template.auction.onDestroyed(function() {
   clearTimeout(this.timeOut)

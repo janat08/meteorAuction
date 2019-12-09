@@ -1,6 +1,7 @@
 import './auctionList.html';
 // import './createAuction.html';
 import {Auctions} from '../../../api/cols.js'
+import '../../components/imageShow/imageShow.js'
 
 Template.auctionList.onCreated(function () {
   Meteor.subscribe('auctions.all');
@@ -9,6 +10,10 @@ Template.auctionList.onCreated(function () {
 Template.auctionList.helpers({
   auctions(){
     console.log(Auctions.find().fetch())
-      return Auctions.find({active: true})
+      return Auctions.find({active: true}).fetch().map(x=>{
+        x.imageIds = x.imageIds.slice(0, 1)
+        console.log(x)
+        return x
+      })
   }
 });

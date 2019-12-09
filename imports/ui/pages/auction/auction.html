@@ -1,6 +1,9 @@
 <template name="auction">
 {{#with auction}}
 {{title}}
+    {{#each imageIds}}
+      {{> imageShow}}
+    {{/each}}
 {{description}}
 {{typeName}}
 {{whenEnds}}

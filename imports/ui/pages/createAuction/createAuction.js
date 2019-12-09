@@ -12,6 +12,7 @@ dayjs.extend(customParseFormat)
 //import './flatpicker.js'
 //gijgo freezes with recursive calls
 //flatpickr won't import styles, if styles imported manually nothing shows up
+
 Template.createAuction.onCreated(function() {
     this.currentUpload = new ReactiveArray()
     //meant to cause reactivity on object updates in current upload
@@ -61,8 +62,11 @@ Template.createAuction.events({
       alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
       return
     }
-    console.log(dayjs(date.unix()).toDate(), new Date(date.unix()))
-    var document = { title: tV, type: typeV, minimum: mV, description: dV }
+
+    const images = templ.currentUpload
+    console.log(images)
+
+    var document = { imageIds: images.map(x=>x.doc._id), title: tV, type: typeV, minimum: mV, description: dV }
 
     //if time is unchanged then don't set startDate
     if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
@@ -102,7 +106,6 @@ Template.createAuction.events({
           chunkSize: 'dynamic',
           meta: {
             uploader: Meteor.userId(),
-            productId: FlowRouter.getParam("productId"),
           },
         }, false);
 
@@ -121,8 +124,6 @@ Template.createAuction.events({
           }
           st[st.findIndex(x => x._id == itemId)].doc = fileObj
           template.insertedUploads.set(stRuns + i)
-          // inter[i-1].doc = fileObj
-          // st.set(inter)
         });
 
         upload.start();

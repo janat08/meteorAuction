@@ -4,6 +4,7 @@ import { Auctions, Bids, BidTypes } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import dayjs from 'dayjs'
 import humanize from 'humanize-duration'
+import '../../components/imageShow/imageShow.js'
 
 Template.auction.onCreated(function() {
   const auReady = Meteor.subscribe('auctions.all');

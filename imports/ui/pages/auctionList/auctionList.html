@@ -2,5 +2,8 @@
     <br>
     {{#each auctions}}
     <a href="/auction/{{_id}}">{{title}}</a>
+        {{#each imageIds}}
+            {{> imageShow}}
+        {{/each}}
     {{/each}}
 </template>

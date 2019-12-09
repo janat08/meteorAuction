@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { Auctions, AuctionTypes, BidTypeIndexes, BidTypes } from '../cols.js'
+import { Auctions, AuctionTypes, BidTypeIndexes, BidTypes, ImagesFiles } from '../cols.js'
 import { Jobs } from 'meteor/msavin:sjobs'
 import dayjs from 'dayjs'
 
 Meteor.methods({
-  'auctions.insert' ({ title, type: typeText, minimum, description, startDate }) {
+  'auctions.insert' ({ imageIds, title, type: typeText, minimum, description, startDate }) {
     if (!this.userId) throw new Meteor.Error('not logged in')
     const type = typeText * 1
 
@@ -16,6 +16,7 @@ Meteor.methods({
       typeName: AuctionTypes[type],
       createdAt: new Date(),
       description,
+      imageIds,
     }
 
     if (startDate) {
@@ -28,7 +29,8 @@ Meteor.methods({
       document.active = true
     }
     const auctionId = Auctions.insert(document);
-    
+    ImagesFiles.update({ _id: { $in: imageIds } }, {$set:{ meta: { auctionId: auctionId }} })
+
     //make sure that biding start at the corresponding auction type
     if (type != 0) {
       const typeIndex = BidTypeIndexes[type] - 1

@@ -6,17 +6,18 @@ Meteor.methods({
         const curr = maxBids.findOne({ auctionId })
         const amount = BidTypes.findIndex((x, i, a) => {
             if (i == 0) {
-                return a[i + 1] > amount
+                return a[i + 1] > anyAmount
             }
             else if (a.length == i) {
                 return true
             }
             else {
-                return a[i - 1] <= amount
+                return a[i - 1] <= anyAmount
             }
         })
+        if (amount == -1) throw new Meteor.Error('amount is beneath minimum bidding')
         if (!curr) {
-            maxBids.insert({ auctionId, amount }, (err, id) => {
+            return maxBids.insert({ auctionId, amount }, (err, id) => {
                 if (err) {
                     Meteor.call('maxBids.upsert', { amount, auctionId })
                 }
@@ -49,3 +50,16 @@ Meteor.methods({
         maxBids.update()
     }
 })
+
+function makeBids (that, currHigh, currMax, amount){
+                if (currMax > amount) {
+                const makeBids = BidTypes.filter(findAppropriateBidTypes(amount))
+                Meteor.call('bids.insert', {amount: makeBids.slice(-1), auctionId, })
+                auctionId, index, amount, show = true
+            }
+            else if (amount > currMax) {
+
+            } else {
+                
+            }
+}

@@ -1,4 +1,9 @@
 <template name="auctionList">
+    type: <select class='typeSelect'>
+    {{#each type in types}}
+        <option value="{{@index}}">{{type}}</option>
+    {{/each}}
+    </select>
     <br>
     {{#each auctions}}
     <a href="/auction/{{_id}}">{{title}}</a>

@@ -7,8 +7,9 @@ import humanize from 'humanize-duration'
 import '../../components/imageShow/imageShow.js'
 
 Template.auction.onCreated(function() {
-  const auReady = Meteor.subscribe('auctions.all');
-  const biReady = Meteor.subscribe('bids.all')
+  const auReady = SubsCache.subscribe('auctions.all');
+  const biReady = SubsCache.subscribe('bids.all')
+  SubsCache.subscribe('images.all')
   //correct base case, you're showing next bid, unlike ordinary auction type
   //others are create with base bid, so rest of the logic just increments the bid
   //to show next possible bid, in case of ordinary that becomes 0 (or the start)

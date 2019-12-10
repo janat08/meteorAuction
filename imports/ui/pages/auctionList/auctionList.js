@@ -1,19 +1,29 @@
 import './auctionList.html';
-// import './createAuction.html';
-import {Auctions} from '../../../api/cols.js'
+import { Auctions, AuctionTypes } from '../../../api/cols.js'
 import '../../components/imageShow/imageShow.js'
 
-Template.auctionList.onCreated(function () {
-  Meteor.subscribe('auctions.all');
+Template.auctionList.onCreated(function() {
+  SubsCache.subscribe('auctions.all');
+  SubsCache.subscribe('images.all')
+  this.type = new ReactiveVar(0)
 });
 
 Template.auctionList.helpers({
-  auctions(){
-    console.log(Auctions.find().fetch())
-      return Auctions.find({active: true}).fetch().map(x=>{
-        x.imageIds = x.imageIds.slice(0, 1)
-        console.log(x)
-        return x
-      })
+  types() {
+    return AuctionTypes;
+  },
+  auctions() {
+    const type = Template.instance().type.get()
+    return Auctions.find({ active: true, type }).fetch().map(x => {
+      x.imageIds = x.imageIds.slice(0, 1)
+      console.log(x)
+      return x
+    })
+  }
+});
+
+Template.auctionList.events({
+  'change .typeSelect'(event,templ){
+    templ.type.set(event.target.value*1)
   }
 });

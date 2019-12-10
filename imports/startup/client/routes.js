@@ -9,6 +9,9 @@ import '../../ui/pages/createAuction/createAuction.js';
 
 import '../../ui/pages/not-found/not-found.js';
 
+window.SubsCache = new SubsCache(5, 10);
+
+
 // Set up all routes in the app
 FlowRouter.route('/', {
   name: 'App.auctions',

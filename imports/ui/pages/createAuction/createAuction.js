@@ -14,17 +14,63 @@ dayjs.extend(customParseFormat)
 //flatpickr won't import styles, if styles imported manually nothing shows up
 
 Template.createAuction.onCreated(function() {
+  SubsCache.subscribe('images.all')
   this.currentUpload = new ReactiveArray()
   //meant to cause reactivity on object updates in current upload
   this.insertedUploads = new ReactiveVar(0)
   //used to assign ids to files, so that there're unique ids between consequtive upload batches
   this.numberOfRuns = 0
+  this.minimumWasSet = new ReactiveVar(false)
+  this.submitted = new ReactiveVar(false)
+  const templ = this
+  //make sure that the modal explaing how minimum field works isn't just skipped
+  templ.autorun(() => {
+    const minimumWasSet = templ.minimumWasSet.get()
+    console.log(this.submitted.get(), minimumWasSet)
+    if (!minimumWasSet && this.submitted.get()) {
+      const target = event.target;
+      const {
+        title: { value: tV },
+        date: { value: dateV },
+        hour: { value: hourV },
+        minute: { value: minuteV },
+        description: { value: dV },
+        type: { value: typeV },
+        minimum: { value: mV }
+      } = target
+      var date = dayjs(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
+
+      if (!date.isValid()) {
+        alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
+        return
+      }
+
+      const images = templ.currentUpload
+
+      var document = {
+        imageIds: images.map(x => x.doc._id),
+        title: tV,
+        type: typeV,
+        minimum: mV * 1,
+        description: dV
+      }
+
+      //if time is unchanged then don't set startDate
+      if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
+        document.startDate = date.toDate()
+      }
+
+      Meteor.call('auctions.insert', document, (err, res) => {
+        if (err) {
+          alert(err)
+        }
+        else {
+          FlowRouter.go('App.auction', { auctionId: res })
+        }
+      });
+    }
+  })
 });
-Template.createAuction.onRendered(function() {
-$('#myModal').on('shown.bs.modal', function () {
-  $('#myInput').trigger('focus')
-})
-})
 
 Template.createAuction.helpers({
   types() {
@@ -46,48 +92,21 @@ Template.createAuction.helpers({
 });
 
 Template.createAuction.events({
+  'change .minimumJs'(ev, templ){
+    templ.minimumWasSet.set(true)
+    $('#confirmMinimum').modal()
+    console.log('setting')
+  },
+  'click .confirmJs'(ev,templ){
+    templ.minimumWasSet.set(false)
+  },
+  'click .cancelJs'(ev,templ){
+    templ.minimumWasSet.set(false)
+    $('.minimumJs').val("")
+  },
   'submit #createAuction' (event, templ) {
     event.preventDefault();
-    const target = event.target;
-    const {
-      title: { value: tV },
-      date: { value: dateV },
-      hour: { value: hourV },
-      minute: { value: minuteV },
-      description: { value: dV },
-      type: { value: typeV },
-      minimum: { value: mV }
-    } = target
-    var date = dayjs(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
-
-    if (!date.isValid()) {
-      alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
-      return
-    }
-
-    const images = templ.currentUpload
-
-    var document = {
-      imageIds: images.map(x => x.doc._id),
-      title: tV,
-      type: typeV,
-      minimum: mV * 1,
-      description: dV
-    }
-
-    //if time is unchanged then don't set startDate
-    if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
-      document.startDate = date.toDate()
-    }
-
-    Meteor.call('auctions.insert', document, (err, res) => {
-      if (err) {
-        alert(err)
-      }
-      else {
-        FlowRouter.go('App.auction', { auctionId: res })
-      }
-    });
+    templ.submitted.set(true)
   },
   'click .jsRemovePic' (e, templ) {
     console.log(this)

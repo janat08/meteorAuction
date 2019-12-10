@@ -15,6 +15,7 @@ Meteor.methods({
       minimum,
       typeName: AuctionTypes[type],
       createdAt: new Date(),
+      endDate: dayjs(startDate ? startDate : new Date()).add(3, 'day').toDate(),
       description,
       imageIds,
     }

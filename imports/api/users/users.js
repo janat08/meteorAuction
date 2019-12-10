@@ -6,6 +6,6 @@ Accounts.onCreateUser((options, user)=>{
     if (!user.profile){
         user.profile = {}
     }
-    user.profile.hashedUsername = Random.id(8)
+    user.profile.hashedUsername = Random.id(4)
     return user
 })

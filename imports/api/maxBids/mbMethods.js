@@ -1,9 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import { MaxBids, BidTypes, Bids } from '../cols.js'
+import { MaxBids, BidTypes, Bids, Auctions } from '../cols.js'
 import { bidInsert } from '../bids/biMethods.js'
 Meteor.methods({
     'maxBids.upsert' ({ amount: textAnyAmount, auctionId }) {
         if (!this.userId) throw new Meteor.Error("youre logged out")
+        const auction = Auctions.findOne(auctionId)
+        if (auction.minimum > amount) {
+            throw new Meteor.Error("Below seller's minimum")
+        }
         const anyAmount = textAnyAmount * 1
         const curr = MaxBids.findOne({ auctionId })
         const currHigh = Bids.findOne({ auctionId }, { sort: { amount: -1 } })

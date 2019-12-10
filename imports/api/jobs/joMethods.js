@@ -1,6 +1,6 @@
 //activate deactivateauction
 import { Jobs } from 'meteor/msavin:sjobs'
-import { Auctions } from '../cols.js'
+import { Auctions, Bids } from '../cols.js'
 
 Jobs.register({
     "activateAuction": function (id) {
@@ -10,7 +10,9 @@ Jobs.register({
     },
     "deactivateAuction": function (id) {
         console.log('running deactivate')
-        Auctions.update(id, {$set: {active: false, finished: true}})
+        const auction = Auctions.findOne(id)
+        const winner = Bids.findOne({auctionId: id}, {sort: {amount: -1}})
+        Auctions.update(id, {$set: {active: false, finished: true, winner: winner.userId, winnerAmount: winner.amount}})
         this.remove()
     }
 });

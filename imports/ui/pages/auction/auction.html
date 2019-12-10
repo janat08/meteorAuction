@@ -22,10 +22,10 @@
 
 <br>
 NextBid: {{nextBid}}
-Bids:
+Bids (username, amount, date, time): 
 <ul>
 {{#each bids}}
-<li>{{hashedUsername}}: {{amount}}, {{date.date}} {{date.time}}</li>
+<li>{{hashedUsername}}; {{amount}}; {{date.date}}; {{date.time}};</li>
 {{/each}}
 </ul>
 

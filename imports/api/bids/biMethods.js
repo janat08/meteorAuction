@@ -1,7 +1,11 @@
 import { Meteor } from 'meteor/meteor';
-import { MaxBids, Bids, BidTypes, BidTypesObj } from '../cols.js'
+import { MaxBids, Auctions, Bids, BidTypes, BidTypesObj } from '../cols.js'
 
 export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: maxBidWarsUnverified = false }) {
+    const auction = Auctions.findOne(auctionId)
+    if (auction.minimum > amount){
+        throw new Meteor.Error("Below seller's minimum")
+    }
     if (this.connection) {
         var bidder = this.userId
         var maxBidWars = false
@@ -17,7 +21,6 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
     Bids.insert({ hashedUsername: hash, auctionIdIndex: auctionId + amount, userId: bidder, auctionId, date: new Date(), amount, show },
         (err, res) => {
             if (err) {
-                console.log(err)
                 throw new Meteor.Error('another user made the same bid before you')
             }
             else if (!maxBidWars) {
@@ -29,7 +32,7 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
                     }
                 }
                 else {
-                    if (max.amount < amount) {
+                    if (max.amount <= amount) {
                         MaxBids.remove({ userId: bidder, auctionId })
                     }
                 }

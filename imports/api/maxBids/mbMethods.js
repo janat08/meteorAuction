@@ -53,87 +53,62 @@ Meteor.methods({
         const currMax = curr.amount
 
         //bidding war simulation
-        // const bidsAvailable = BidTypes.filter(findAppropriateBidTypes(amount))
-        // console.log('bidsAvailable', bidsAvailable)
         const thisUserId = this.userId
         const bidsToMake = makeBids()
-        // console.log(bidsToMake)
-
-        console.log('toInsert', bidsToMake)
         bidsToMake.forEach(x => {
-            // console.log('making insert', x.amount, x.userId)
             try {
-                console.log(bidInsert)
                 bidInsert(x)
             }
             catch (err) {
                 console.log(err)
             }
         })
-                console.log(curr.userId, this.userId)
 
 
         //update current highest max auto bidder
         if (currMax < amount) {
-            MaxBids.update({ auctionId }, {$set: {amount, userId: this.userId}})
+            MaxBids.update({ auctionId }, { $set: { amount, userId: this.userId } })
         }
         else if (currMax == amount) {
             MaxBids.remove({ auctionId, userId: curr.userId })
         }
-        //make available bids part of recursion, and make sure that the winner has last bid
-        function makeBids(currBids = [], otherTurn=false, typeIndex = 0) {
+        //make sure that the winner has last bid
+        function makeBids(currBids = [], otherTurn = false, typeIndex = 0) {
             const start = currHigh.amount
             const sorted = [currMax, amount].sort((a, b) => a - b)
-            // const max = sorted[1]
             const low = sorted[0]
-            const high = sorted[1]
             const value = BidTypes[typeIndex]
             //ensures that the higher maxBidder always winds up overbidding, if
             //the loser max bidder winds up making the highest possible bid within
             //his allowance, and the higher maxBidder has to go above losers
             //allowance to stay on top
             if ((value <= low && value > start) || (low == amount && otherTurn)) {
-                // if (!currBids.length && otherTurn) {
-                //     currBids.push({ auctionId, amount: value, userId: thisUserId })
-                //     return makeBids(currBids, true)
-                // }
-                // else {
-                    const lastIndex = currBids.length - 1
-                    const nextBid = value
-                    const current = { auctionId, amount: nextBid, userId: thisUserId, maxBidWars: true }
-                    const other = { auctionId, amount: nextBid, userId: curr.userId, maxBidWars: true }
-                    console.log(thisUserId, curr.userId)
-                    if (otherTurn) {
-                        if (nextBid > curr.amount) {
-                            return currBids
-                        }
-                        currBids.push(other)
-                        return makeBids(currBids, false, typeIndex+1)
+                const lastIndex = currBids.length - 1
+                const nextBid = value
+                const current = { auctionId, amount: nextBid, userId: thisUserId, maxBidWars: true }
+                const other = { auctionId, amount: nextBid, userId: curr.userId, maxBidWars: true }
+                console.log(thisUserId, curr.userId)
+                if (otherTurn) {
+                    if (nextBid > curr.amount) {
+                        return currBids
                     }
-                    else {
-                        if (nextBid > amount) {
-                            return currBids
-                        }
-                        currBids.push(current)
-                        return makeBids(currBids, true,  typeIndex+1)
+                    currBids.push(other)
+                    return makeBids(currBids, false, typeIndex + 1)
+                }
+                else {
+                    if (nextBid > amount) {
+                        return currBids
                     }
-                // }
-            } else if (value <= start) {
-                return makeBids(currBids, otherTurn, typeIndex+1)
-            } else {
+                    currBids.push(current)
+                    return makeBids(currBids, true, typeIndex + 1)
+                }
+            }
+            else if (value <= start) {
+                return makeBids(currBids, otherTurn, typeIndex + 1)
+            }
+            else {
                 return currBids
             }
         }
-
-        // function findAppropriateBidTypes() {
-        //     // const nextBid = BidTypes[BidTypes.findIndex(currHigh.amount)+1]
-        //     const start = currHigh.amount
-        //     const sorted = [currMax, amount].sort((a, b) => a - b)
-        //     // const max = sorted[1]
-        //     const low = sorted[0]
-        //     return function(x) {
-        //         return x <= low && x > start
-        //     }
-        // }
     }
 })

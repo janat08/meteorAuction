@@ -1,4 +1,6 @@
 TODO:
+on maxBid dropdown breaks
+fix maxbid also bidding
 maxBid
 recursively? make sure that bids are in alternating order between users
 handle maxbid making bids without userId present by passing userid, and verifying server side call

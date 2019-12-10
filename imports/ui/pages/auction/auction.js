@@ -95,8 +95,13 @@ Template.auction.events({
   },
   'click .justBidJs': makeBid,
   'click .setMaxJs' (event, templ) {
-    makeBid(event, templ)
-    Meteor.call('maxBids.insert')
+    const last = Bids.findOne({ show: { $ne: false } }, { sort: { amount: -1 } })
+    // if (last.userId != Meteor.userId){
+    //       makeBid(event, templ)
+    // }
+    const amount = $('.maxBidJs').val()
+    console.log(amount)
+    Meteor.call('maxBids.upsert', {amount, auctionId: FlowRouter.getParam("auctionId")})
   },
 });
 

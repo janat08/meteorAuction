@@ -101,7 +101,12 @@ Template.auction.events({
     // }
     const amount = $('.maxBidJs').val()
     console.log(amount)
-    Meteor.call('maxBids.upsert', {amount, auctionId: FlowRouter.getParam("auctionId")})
+    Meteor.call('maxBids.upsert', {amount, auctionId: FlowRouter.getParam("auctionId")},
+    (err, res)=>{
+      if (err){
+        alert(err.error)
+      }
+    })
   },
 });
 
@@ -115,7 +120,7 @@ function makeBid(event, templ) {
     amount,
   }, (err, res) => {
     if (err) {
-      alert("Another user made the same bid before you")
+      alert(err.error)
     }
     else {
       $('.customBidSelect').val(0)

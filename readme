@@ -1,11 +1,4 @@
 TODO:
-on maxBid dropdown breaks
-fix maxbid also bidding
-maxBid
-recursively? make sure that bids are in alternating order between users
-handle maxbid making bids without userId present by passing userid, and verifying server side call
-remove index values from bids, and check that specific bids are used differently
-the bid behaviour for ordinary item is wrong
 minimum bid logic
 auction type selector, new/lux/ordinary
 am I handling error for rejected bid since its too slow

@@ -1,6 +1,6 @@
 import './auction.html';
 
-import { Auctions, Bids, BidTypes } from '../../../api/cols.js'
+import { Auctions, Bids, BidTypes, BidTypesObj } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import dayjs from 'dayjs'
 import humanize from 'humanize-duration'
@@ -9,7 +9,10 @@ import '../../components/imageShow/imageShow.js'
 Template.auction.onCreated(function() {
   const auReady = Meteor.subscribe('auctions.all');
   const biReady = Meteor.subscribe('bids.all')
-  this.bidType = new ReactiveVar(0)
+  //correct base case, you're showing next bid, unlike ordinary auction type
+  //others are create with base bid, so rest of the logic just increments the bid
+  //to show next possible bid, in case of ordinary that becomes 0 (or the start)
+  this.bidType = new ReactiveVar(-1)
   this.customBid = new ReactiveVar(0)
   this.timeTicker = new ReactiveVar(0)
 
@@ -30,9 +33,9 @@ Template.auction.onCreated(function() {
     const id = FlowRouter.getParam("auctionId")
     const auction = Auctions.findOne(id)
     if (auReady.ready() && biReady.ready()) {
-      const bids = Bids.find({ auctionId: id }, { sort: { index: -1 } }).fetch()
-      this.bidType.set(bids[0].index * 1)
-      console.log(bids[0])
+      const bids = Bids.findOne({ auctionId: id }, { sort: { amount: -1 } })
+      this.bidType.set(BidTypesObj[bids.amount] * 1)
+      console.log(BidTypesObj[bids.amount], bids)
     }
     ticker()
   })
@@ -51,7 +54,6 @@ Template.auction.helpers({
     let res = Bids.find({ show: { $ne: false } }, { sort: { amount: -1 } }).map(x => {
       const date = dayjs(x.date)
       x.date = { date: date.format('D/M/YY'), time: date.format('hh:mm') }
-      console.log(x.date)
       return x
     })
     return res

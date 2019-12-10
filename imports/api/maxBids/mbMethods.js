@@ -100,8 +100,8 @@ Meteor.methods({
                 // else {
                     const lastIndex = currBids.length - 1
                     const nextBid = value
-                    const current = { auctionId, amount: nextBid, userId: thisUserId }
-                    const other = { auctionId, amount: nextBid, userId: curr.userId }
+                    const current = { auctionId, amount: nextBid, userId: thisUserId, maxBidWars: true }
+                    const other = { auctionId, amount: nextBid, userId: curr.userId, maxBidWars: true }
                     console.log(thisUserId, curr.userId)
                     if (otherTurn) {
                         if (nextBid > curr.amount) {

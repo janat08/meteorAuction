@@ -20,14 +20,37 @@ Template.createAuction.onCreated(function() {
   this.insertedUploads = new ReactiveVar(0)
   //used to assign ids to files, so that there're unique ids between consequtive upload batches
   this.numberOfRuns = 0
-  this.minimumWasSet = new ReactiveVar(false)
-  this.submitted = new ReactiveVar(false)
-  const templ = this
-  //make sure that the modal explaing how minimum field works isn't just skipped
-  templ.autorun(() => {
-    const minimumWasSet = templ.minimumWasSet.get()
-    console.log(this.submitted.get(), minimumWasSet)
-    if (!minimumWasSet && this.submitted.get()) {
+});
+
+Template.createAuction.helpers({
+  types() {
+    return AuctionTypes;
+  },
+  currentUpload() {
+    //meant for object reactivity
+    Template.instance().insertedUploads.get()
+    const curUpload = Template.instance().currentUpload.list()
+    const ids = curUpload.filter(x => x.doc).map(x => x.doc._id)
+    const query = [{ _id: { $in: ids } }]
+    return ImagesFiles.find({ $or: query }).each().concat(curUpload.filter(x => !x.doc));
+  },
+  dateTime() {
+    const time = dayjs()
+    Template.instance().time = time
+    return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
+  }
+});
+
+Template.createAuction.events({
+  'change .minimumJs'(ev, templ){
+    $('#confirmMinimum').modal()
+  },
+  'click .cancelJs'(ev,templ){
+    $('.minimumJs').val("")
+  },
+  'submit #createAuction' (event, templ) {
+    event.preventDefault();
+    
       const target = event.target;
       const {
         title: { value: tV },
@@ -68,45 +91,6 @@ Template.createAuction.onCreated(function() {
           FlowRouter.go('App.auction', { auctionId: res })
         }
       });
-    }
-  })
-});
-
-Template.createAuction.helpers({
-  types() {
-    return AuctionTypes;
-  },
-  currentUpload() {
-    //meant for object reactivity
-    Template.instance().insertedUploads.get()
-    const curUpload = Template.instance().currentUpload.list()
-    const ids = curUpload.filter(x => x.doc).map(x => x.doc._id)
-    const query = [{ _id: { $in: ids } }]
-    return ImagesFiles.find({ $or: query }).each().concat(curUpload.filter(x => !x.doc));
-  },
-  dateTime() {
-    const time = dayjs()
-    Template.instance().time = time
-    return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
-  }
-});
-
-Template.createAuction.events({
-  'change .minimumJs'(ev, templ){
-    templ.minimumWasSet.set(true)
-    $('#confirmMinimum').modal()
-    console.log('setting')
-  },
-  'click .confirmJs'(ev,templ){
-    templ.minimumWasSet.set(false)
-  },
-  'click .cancelJs'(ev,templ){
-    templ.minimumWasSet.set(false)
-    $('.minimumJs').val("")
-  },
-  'submit #createAuction' (event, templ) {
-    event.preventDefault();
-    templ.submitted.set(true)
   },
   'click .jsRemovePic' (e, templ) {
     console.log(this)

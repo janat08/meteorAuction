@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { MaxBids, Auctions, Bids, BidTypes, BidTypesObj } from '../cols.js'
+import { MaxBids, Auctions, Bids, BidTypes, BidTypesObj, Jobs } from '../cols.js'
+import moment from 'moment'
 
 export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: maxBidWarsUnverified = false }) {
     const auction = Auctions.findOne(auctionId)
-    if (auction.minimum > amount){
+    if (auction.minimum > amount) {
         throw new Meteor.Error("Bid below seller's minimum")
     }
     if (this.connection) {
@@ -23,17 +24,33 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
             if (err) {
                 throw new Meteor.Error('another user made the same bid before you')
             }
-            else if (!maxBidWars) {
-                const max = MaxBids.findOne({ auctionId })
-                if (max.userId != bidder) {
-                    const next = BidTypes[BidTypesObj[amount] + 1]
-                    if (max.amount >= next) {
-                        bidInsert({ auctionId, amount: next, userId: max.userId })
+            if (moment(auction.endDate).diff(moment(), 'minutes') < 60) {
+                console.log('diff of 60 mins')
+                Auctions.update(auctionId, {$set: {endDate: moment().add(5, 'minutes').toDate()}})
+                Jobs.find('deactivateAuction', auctionId, function(res){
+                    if (res){
+                        this.reschedule({
+                            in: {
+                                minutes: 5
+                            }
+                        })
                     }
-                }
-                else {
-                    if (max.amount <= amount) {
-                        MaxBids.remove({ userId: bidder, auctionId })
+                })
+            }
+            //extend the completion job
+            if (!maxBidWars) {
+                const max = MaxBids.findOne({ auctionId })
+                if (max) {
+                    if (max.userId != bidder) {
+                        const next = BidTypes[BidTypesObj[amount] + 1]
+                        if (max.amount >= next) {
+                            bidInsert({ auctionId, amount: next, userId: max.userId })
+                        }
+                    }
+                    else {
+                        if (max.amount <= amount) {
+                            MaxBids.remove({ userId: bidder, auctionId })
+                        }
                     }
                 }
             }

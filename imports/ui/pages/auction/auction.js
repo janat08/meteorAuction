@@ -2,8 +2,8 @@ import './auction.html';
 
 import { Auctions, Bids, BidTypes, BidTypesObj } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import dayjs from 'dayjs'
 import humanize from 'humanize-duration'
+import moment from 'moment'
 import '../../components/imageShow/imageShow.js'
 
 Template.auction.onCreated(function() {
@@ -21,7 +21,7 @@ Template.auction.onCreated(function() {
   const templ = this
 
   function ticker() {
-    const now = dayjs()
+    const now = moment()
     const inMinute = now.second(0).millisecond(0).add(1, 'm') - now
     clearTimeout(templ.timeOut)
     templ.timeOut = setTimeout(() => {
@@ -54,8 +54,8 @@ Template.auction.helpers({
     return res;
   },
   bids() {
-    let res = Bids.find({ show: { $ne: false } }, { sort: { amount: -1 } }).map(x => {
-      const date = dayjs(x.date)
+    let res = Bids.find({auctionId: this._id, show: { $ne: false },  }, { sort: { amount: -1 } }).map(x => {
+      const date = moment(x.date)
       x.date = { date: date.format('D/M/YY'), time: date.format('hh:mm') }
       return x
     })
@@ -81,12 +81,12 @@ Template.auction.helpers({
   whenEnds() {
     Template.instance().timeTicker.get()
     const { startDate, createdAt } = this
-    const end = dayjs(this.createdAt).add(3, 'day')
-    const now = dayjs()
+    const end = this.endDate
+    const now = moment()
     if (now.isAfter(end)) {
       return "EXPIRED"
     }
-    if (startDate && now.isBefore(dayjs(startDate))) {
+    if (startDate && now.isBefore(moment(startDate))) {
       return "Hasn't begun, starts in: " + humanize(startDate - now, { units: ['d', 'h', 'm'], round: true })
     }
     const diff = end - now

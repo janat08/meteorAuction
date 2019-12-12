@@ -2,9 +2,9 @@ import './createAuction.html';
 
 import { Auctions, AuctionTypes, ImagesFiles } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
-import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
-dayjs.extend(customParseFormat)
+import moment from 'moment'
+// import customParseFormat from 'moment/plugin/customParseFormat'
+// moment.extend(customParseFormat)
 
 // import 'gijgo'
 //import './ginjgo.css'
@@ -35,7 +35,7 @@ Template.createAuction.helpers({
     return ImagesFiles.find({ $or: query }).each().concat(curUpload.filter(x => !x.doc));
   },
   dateTime() {
-    const time = dayjs()
+    const time = moment()
     Template.instance().time = time
     return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
   }
@@ -61,8 +61,8 @@ Template.createAuction.events({
         type: { value: typeV },
         minimum: { value: mV }
       } = target
-      var date = dayjs(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
-
+      var date = moment(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
+      console.log(date.toDate())
       if (!date.isValid()) {
         alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
         return
@@ -79,7 +79,7 @@ Template.createAuction.events({
       }
 
       //if time is unchanged then don't set startDate
-      if (!templ.time.isSame(date) && date.isAfter(dayjs())) {
+      if (!templ.time.isSame(date) && date.isAfter(moment())) {
         document.startDate = date.toDate()
       }
 

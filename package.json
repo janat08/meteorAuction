@@ -7,12 +7,14 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.6.0",
+    "agenda": "^2.2.0",
     "bcrypt": "^3.0.7",
     "flatpickr": "^4.6.3",
     "gijgo": "^1.9.13",
     "humanize-duration": "^3.21.0",
     "meteor-node-stubs": "^1.0.0",
     "moment": "^2.24.0",
+    "mongodb-client-encryption": "^1.0.0",
     "tempusdominus-bootstrap-4": "^5.1.2"
   },
   "devDependencies": {

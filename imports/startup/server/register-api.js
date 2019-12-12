@@ -13,5 +13,3 @@ import '../../api/images/methods.js';
 import '../../api/images/server/publications.js';
 
 import '../../api/users/users.js'
-
-import '../../api/jobs/joMethods.js'

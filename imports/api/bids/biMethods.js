@@ -7,6 +7,7 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
     if (auction.minimum > amount) {
         throw new Meteor.Error("Bid below seller's minimum")
     }
+    if (moment(auction.endDate).diff(moment(), 'seconds') < 0) throw new Meteor.Error('Auction has ended')
     if (this.connection) {
         var bidder = this.userId
         var maxBidWars = false
@@ -24,18 +25,21 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
             if (err) {
                 throw new Meteor.Error('another user made the same bid before you')
             }
-            if (moment(auction.endDate).diff(moment(), 'minutes') < 60) {
+            if (moment(auction.endDate).diff(moment(), 'minutes') <= 5) {
                 console.log('diff of 60 mins')
-                Auctions.update(auctionId, {$set: {endDate: moment().add(5, 'minutes').toDate()}})
-                Jobs.find('deactivateAuction', auctionId, function(res){
-                    if (res){
-                        this.reschedule({
-                            in: {
-                                minutes: 5
-                            }
-                        })
+                const newEndDate= moment(auction.endDate).add(5, 'minutes').toDate()
+                Auctions.update(auctionId, { $set: { endDate: newEndDate } })
+                SyncedCron.remove('deactivate auction' + auctionId)
+                SyncedCron.add({
+                    name: 'deactivate auction' + auctionId,
+                    schedule: function(parser) {
+                        return parser.recur().on(newEndDate).fullDate()
+                    },
+                    job: function() {
+                        const winner = Bids.findOne({ auctionId, show: true }, { sort: { amount: -1 } })
+                        Auctions.update(auctionId, { $set: { active: false, finished: true, winner: winner && winner.userId, winnerAmount: winner && winner.amount } })
                     }
-                })
+                });
             }
             //extend the completion job
             if (!maxBidWars) {
@@ -64,3 +68,5 @@ Meteor.methods({
         Bids.remove({ show: true })
     }
 })
+
+console.log(moment().diff(moment().add(3, 'days'), 'minutes'))

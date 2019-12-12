@@ -10,15 +10,16 @@ Meteor.methods({
   'auctions.insert': async function({ imageIds, title, type: typeText, minimum, description, startDate }) {
     if (!this.userId) throw new Meteor.Error('not logged in')
     const type = typeText * 1
-
+    
     if ([0, 1, 2].indexOf(type) == -1) throw new Meteor.Error("Error")
+    const endDate = moment(startDate ? startDate : new Date()).add(3, 'days').toDate()
     const document = {
       title,
       type,
       minimum,
       typeName: AuctionTypes[type],
       createdAt: new Date(),
-      endDate: moment(startDate ? startDate : new Date()).add(3, 'minutes').toDate(),
+      endDate,
       description,
       imageIds,
     }
@@ -43,11 +44,8 @@ Meteor.methods({
     }
 
     if (startDate) {
-      // Jobs.run("activateAuction", auctionId, {
-      //   date: moment(startDate).toDate()
-      // });
       SyncedCron.add({
-        name: 'activate auction',
+        name: 'activate auction'+auctionId,
         schedule: function(parser) {
           // parser is a later.parse object
           return parser.recur().on(startDate).fullDate()
@@ -56,28 +54,19 @@ Meteor.methods({
           Auctions.update(auctionId, { $set: { active: true } })
         }
       });
-      // agenda.schedule(moment(startDate).toDate(), 'activateAuction', { id: auctionId })
     }
-    // const res = await agenda.schedule(moment(startDate ? startDate : new Date()).add(1, 'minute').toDate(), 'deactivateAuction', {id: auctionId})
-    // const res = await agenda.schedule(new Date(), 'deactivateAuction', {id: auctionId})
-    // const res = await agenda.now('deactivateAuction', { id: auctionId })
-
-
 
     SyncedCron.add({
-      name: 'deactivate auction',
+      name: 'deactivate auction'+auctionId,
       schedule: function(parser) {
         // parser is a later.parse object
-        return parser.recur().on(moment(startDate ? startDate : new Date()).add(1, 'minute').toDate()).fullDate() 
+        return parser.recur().on(endDate).fullDate() 
       },
       job: function() {
         const winner = Bids.findOne({ auctionId, show: true }, { sort: { amount: -1 } })
-        Auctions.update(auctionId, { $set: { active: false, finished: true, winner: winner && winner.userId, winnerAmount: winner.amount } })
+        Auctions.update(auctionId, { $set: { active: false, finished: true, winner: winner && winner.userId, winnerAmount: winner && winner.amount } })
       }
     });
-    // Jobs.run("deactivateAuction", auctionId, {
-    //   date: moment(startDate ? startDate : new Date()).add(3, 'day').toDate()
-    // });
 
     return auctionId
   },

@@ -16,6 +16,8 @@ Template.auction.onCreated(function() {
   this.bidType = new ReactiveVar(-1)
   this.customBid = new ReactiveVar(0)
   this.timeTicker = new ReactiveVar(0)
+  this.observerHandle = {stop: ()=>{}}
+
 
   //ticks for every minute
   const templ = this
@@ -30,13 +32,28 @@ Template.auction.onCreated(function() {
     }, inMinute)
   }
 
+  //responsible for showing modal
+  this.autorun(() => {
+    const cursor = Auctions.find(FlowRouter.getParam("auctionId"))
+    this.observerHandle.stop()
+    this.observerHandle = cursor.observeChanges({
+      changed(id, fields) {
+        if (fields.endDate){
+          $('#endExtension').modal()
+        }
+        console.log(fields)
+      }
+    })
+  })
+
+  //responsible for updating/switching timer, and minimum bid
   this.autorun(() => {
     const id = FlowRouter.getParam("auctionId")
-    const auction = Auctions.findOne(id)
     console.log("ready", auReady.ready(), biReady.ready())
     if (auReady.ready() && biReady.ready()) {
+      const auction = Auctions.findOne(id)
       const bids = Bids.findOne({ auctionId: id }, { sort: { amount: -1 } })
-      if (bids){
+      if (bids) {
         this.bidType.set(BidTypesObj[bids.amount] * 1)
       }
     }
@@ -54,7 +71,7 @@ Template.auction.helpers({
     return res;
   },
   bids() {
-    let res = Bids.find({auctionId: this._id, show: { $ne: false },  }, { sort: { amount: -1 } }).map(x => {
+    let res = Bids.find({ auctionId: this._id, show: { $ne: false }, }, { sort: { amount: -1 } }).map(x => {
       const date = moment(x.date)
       x.date = { date: date.format('D/M/YY'), time: date.format('hh:mm') }
       return x
@@ -103,7 +120,7 @@ Template.auction.events({
     const index = templ.customBid.get()
     const bidAmount = BidTypes[index]
     const amount = $('.maxBidJs').val()
-    if (amount == "" || amount == 0 || !amount){
+    if (amount == "" || amount == 0 || !amount) {
       alert('inter a value for max bid')
       return
     }
@@ -135,4 +152,5 @@ function makeBid(event, templ) {
 
 Template.auction.onDestroyed(function() {
   clearTimeout(this.timeOut)
+  this.observerHandle.stop()
 })

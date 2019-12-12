@@ -26,7 +26,6 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
                 throw new Meteor.Error('another user made the same bid before you')
             }
             if (moment(auction.endDate).diff(moment(), 'minutes') <= 5) {
-                console.log('diff of 60 mins')
                 const newEndDate= moment(auction.endDate).add(5, 'minutes').toDate()
                 Auctions.update(auctionId, { $set: { endDate: newEndDate } })
                 SyncedCron.remove('deactivate auction' + auctionId)

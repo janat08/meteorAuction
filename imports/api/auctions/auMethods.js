@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { Auctions, AuctionTypes, BidTypeIndexes, BidTypes, ImagesFiles } from '../cols.js'
-import { Jobs } from 'meteor/msavin:sjobs'
+import { Jobs, JobsInternal } from 'meteor/msavin:sjobs'
 import moment from 'moment'
+
+
 
 Meteor.methods({
   'auctions.insert' ({ imageIds, title, type: typeText, minimum, description, startDate }) {
@@ -15,7 +17,7 @@ Meteor.methods({
       minimum,
       typeName: AuctionTypes[type],
       createdAt: new Date(),
-      endDate: moment(startDate ? startDate : new Date()).add(3, 'day').toDate(),
+      endDate: moment(startDate ? startDate : new Date()).add(3, 'minutes').toDate(),
       description,
       imageIds,
     }
@@ -48,9 +50,11 @@ Meteor.methods({
     Jobs.run("deactivateAuction", auctionId, {
       date: moment(startDate ? startDate : new Date()).add(3, 'day').toDate()
     });
+
     return auctionId
   },
   "auctions.remove.all" () {
     Auctions.remove({})
   }
 })
+    console.log(Object.keys(JobsInternal), JobsInternal.Utilities.helpers.getJob('deactivateAuction'))

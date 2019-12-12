@@ -1,7 +1,7 @@
 //activate deactivateauction
 import { Jobs } from 'meteor/msavin:sjobs'
 import { Auctions, Bids } from '../cols.js'
-
+import moment from 'moment'
 Jobs.register({
     "activateAuction": function (id) {
         console.log(id, 'running activate')
@@ -16,5 +16,18 @@ Jobs.register({
         Auctions.update(id, {$set: {active: false, finished: true, winner: winner && winner.userId, winnerAmount: winner.amount}})
         this.success()
         this.remove()
+    },
+     "sendReminder": function (to, message) {
+        var instance = this;
+
+        console.log('running shite whenever')
+
+instance.remove()
     }
 });
+
+ agenda = new Agenda({db: {address: process.env.MONGO_URL}})
+
+Meteor.startup(()=>{
+    Jobs.run("sendReminder", "jony@apple.com", "The future is here!", {date: moment().add(4, 'minute').toDate()});
+})

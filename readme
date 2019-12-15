@@ -1,6 +1,11 @@
 todo:
-change to make last bid extend auction
-ordinary first bid fails
+install the datepicker
+
+the bid below minimal still show
+clear modal max bid input after a bid
+show the minimum selling price in bidding modal
+calculate and show minimal fee in creation
+
 
 Note:
 remove remove all methods, and the buttons

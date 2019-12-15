@@ -19,7 +19,7 @@
     {{/each}}
 </select>
 title: <input name='title'>
-minimum: <input class='minimumJs' name='minimum'>
+minimum: <input class='minimumJs' type='number' name='minimum'>
 description: <textarea name="description"></textarea>
 <div class='dateTime'></div>
 {{#with dateTime}}
@@ -30,6 +30,7 @@ hour: <input value={{hour}} placeholder="20 or 1:00 PM" name='hour'>
 <input type='submit'  value="submit">
 </form>
 
+<div id='myID'></div>
 
 <div class="modal fade" id="confirmMinimum" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -38,7 +39,7 @@ hour: <input value={{hour}} placeholder="20 or 1:00 PM" name='hour'>
         <h5 class="modal-title" id="exampleModalLabel">You've set auction minimum</h5>
       </div>
       <div class="modal-body">
-        If auction goes unsold then you must pay 5% of minimum that you set.
+        If auction goes unsold then you must pay 5% of minimum that you set, which would be: {{minimumFee}}.
       </div>
       <div class="modal-footer">
         <button type="button" class="confirmJs btn btn-primary" data-dismiss="modal">Confirm</button>

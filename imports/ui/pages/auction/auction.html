@@ -37,7 +37,8 @@ Bids (username, amount, date, time):
         </button>
       </div>
       <div class="modal-body">
-        You may let us bid for you up to a point, trying to beat other bidders.
+        You may let us bid for you up to a point, trying to beat other bidders. 
+        The minimum selling price is {{minimum}}.
         <input class='maxBidJs'>
       </div>
       <div class="modal-footer">
@@ -47,6 +48,7 @@ Bids (username, amount, date, time):
     </div>
   </div>
 </div>
+
 <div class="modal fade" id="endExtension" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -67,8 +69,4 @@ Bids (username, amount, date, time):
 </div>
 
 {{/with}}
-</template>
-
-<template name="confirmBid">
-
 </template>

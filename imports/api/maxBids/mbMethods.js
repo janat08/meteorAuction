@@ -14,9 +14,7 @@ Meteor.methods({
             }
         })]
         const auction = Auctions.findOne(auctionId)
-        if (auction.minimum > amount) {
-            throw new Meteor.Error("Autobid below seller's minimum")
-        }
+
         const curr = MaxBids.findOne({ auctionId })
         var currHigh = Bids.findOne({ auctionId }, { sort: { amount: -1 } })
         if (currHigh >= amount) {
@@ -24,10 +22,12 @@ Meteor.methods({
         }
         if (!amount) throw new Meteor.Error('amount is beneath minimum bidding')
         if (bidAmount >= amount) {
-            Meteor.call('bids.insert', { amount: bidAmount, auctionId })
+            return Meteor.call('bids.insert', { amount: bidAmount, auctionId })
         }
         if (!currHigh || currHigh.userId != this.userId) {
-            Meteor.call('bids.insert', { amount: bidAmount, auctionId, maxBidWars: true })
+            Meteor.call('bids.insert', { amount: bidAmount, auctionId, maxBidWars: true }, (err,res)=>{
+                return err
+            })
         }
         if (curr && curr.userId == this.userId) {
             if (curr.amount == amount) {
@@ -80,7 +80,11 @@ Meteor.methods({
             else if (currMax == amount) {
                 MaxBids.remove({ auctionId, userId: curr.userId })
             }
-            
+
+            if (auction.minimum > amount) {
+                throw new Meteor.Error("Autobid below seller's minimum")
+            }
+
             //make sure that the winner has last bid
             function makeBids(currBids = [], otherTurn = false, typeIndex = 0) {
                 const start = currHigh.amount

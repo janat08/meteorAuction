@@ -3,6 +3,7 @@ import './createAuction.html';
 import { Auctions, AuctionTypes, ImagesFiles } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import moment from 'moment'
+// import flatpickr from "flatpickr";
 // import customParseFormat from 'moment/plugin/customParseFormat'
 // moment.extend(customParseFormat)
 
@@ -20,7 +21,11 @@ Template.createAuction.onCreated(function() {
   this.insertedUploads = new ReactiveVar(0)
   //used to assign ids to files, so that there're unique ids between consequtive upload batches
   this.numberOfRuns = 0
+  this.minimumFee = new ReactiveVar()
 });
+Template.createAuction.onRendered(function(){
+  // flatpickr($("#myID"), {})
+})
 
 Template.createAuction.helpers({
   types() {
@@ -38,11 +43,17 @@ Template.createAuction.helpers({
     const time = moment()
     Template.instance().time = time
     return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
+  },
+  minimumFee(){
+    return Template.instance().minimumFee.get()
   }
 });
 
 Template.createAuction.events({
+  'oninput .minimumJs'(ev, templ){
+  },
   'change .minimumJs'(ev, templ){
+    templ.minimumFee.set(ev.target.value*1*0.05)
     $('#confirmMinimum').modal()
   },
   'click .cancelJs'(ev,templ){

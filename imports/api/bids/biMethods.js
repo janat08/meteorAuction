@@ -4,9 +4,7 @@ import moment from 'moment'
 
 export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: maxBidWarsUnverified = false }) {
     const auction = Auctions.findOne(auctionId)
-    if (auction.minimum > amount) {
-        throw new Meteor.Error("Bid below seller's minimum")
-    }
+
     if (moment(auction.endDate).diff(moment(), 'seconds') < 0) throw new Meteor.Error('Auction has ended')
     if (this.connection) {
         var bidder = this.userId
@@ -20,13 +18,13 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
     if (userId && this.userId && userId != this.userId) throw new Meteor.Error("can't bid on behalf other users")
     if (typeof BidTypesObj[amount] == "undefined") throw new Meteor.Error("wrong amount")
     const hash = Meteor.users.findOne(bidder).profile.hashedUsername
-    return Bids.insert({ hashedUsername: hash, auctionIdIndex: auctionId + amount, userId: bidder, auctionId, date: new Date(), amount, show },
+    const inserted = Bids.insert({ hashedUsername: hash, auctionIdIndex: auctionId + amount, userId: bidder, auctionId, date: new Date(), amount, show },
         (err, res) => {
             if (err) {
                 throw new Meteor.Error('another user made the same bid before you')
             }
             if (moment(auction.endDate).diff(moment(), 'minutes') <= 5) {
-                const newEndDate= moment(auction.endDate).add(5, 'minutes').toDate()
+                const newEndDate = moment(auction.endDate).add(5, 'minutes').toDate()
                 Auctions.update(auctionId, { $set: { endDate: newEndDate } })
                 SyncedCron.remove('deactivate auction' + auctionId)
                 SyncedCron.add({
@@ -58,6 +56,11 @@ export function bidInsert({ auctionId, amount, show = true, userId, maxBidWars: 
                 }
             }
         })
+    if (auction.minimum > amount) {
+        throw new Meteor.Error("Bid below seller's minimum")
+    } else {
+        return inserted
+    }
 }
 
 Meteor.methods({

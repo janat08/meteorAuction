@@ -120,6 +120,7 @@ Template.auction.events({
     const index = templ.customBid.get()
     const bidAmount = BidTypes[index]
     const amount = $('.maxBidJs').val()
+    $('.maxBidJs').val("")
     if (amount == "" || amount == 0 || !amount) {
       alert('inter a value for max bid')
       return

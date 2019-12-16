@@ -3,7 +3,8 @@ import './createAuction.html';
 import { Auctions, AuctionTypes, ImagesFiles } from '../../../api/cols.js'
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import moment from 'moment'
-// import flatpickr from "flatpickr";
+import flatpickr from "flatpickr";
+import 'flatpickr/dist/flatpickr.css';
 // import customParseFormat from 'moment/plugin/customParseFormat'
 // moment.extend(customParseFormat)
 
@@ -24,7 +25,10 @@ Template.createAuction.onCreated(function() {
   this.minimumFee = new ReactiveVar()
 });
 Template.createAuction.onRendered(function(){
-  // flatpickr($("#myID"), {})
+  const instance = this
+    console.log(instance.find('.picker'), flatpickr)
+
+    flatpickr(instance.find('.picker'));
 })
 
 Template.createAuction.helpers({

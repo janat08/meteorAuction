@@ -17,6 +17,8 @@ import 'flatpickr/dist/flatpickr.css';
 
 Template.createAuction.onCreated(function() {
   SubsCache.subscribe('images.all')
+  this.selected = new ReactiveVar(moment())
+  this.time = moment(this.selected.get())
   this.currentUpload = new ReactiveArray()
   //meant to cause reactivity on object updates in current upload
   this.insertedUploads = new ReactiveVar(0)
@@ -24,11 +26,11 @@ Template.createAuction.onCreated(function() {
   this.numberOfRuns = 0
   this.minimumFee = new ReactiveVar()
 });
-Template.createAuction.onRendered(function(){
+Template.createAuction.onRendered(function() {
   const instance = this
-    console.log(instance.find('.picker'), flatpickr)
+  console.log(instance.find('.picker'), flatpickr, this.time.unix())
 
-    flatpickr(instance.find('.picker'));
+  flatpickr(instance.find('.picker'), { enableTime: true, defaultDate: this.time.toDate() });
 })
 
 Template.createAuction.helpers({
@@ -43,69 +45,61 @@ Template.createAuction.helpers({
     const query = [{ _id: { $in: ids } }]
     return ImagesFiles.find({ $or: query }).each().concat(curUpload.filter(x => !x.doc));
   },
-  dateTime() {
-    const time = moment()
-    Template.instance().time = time
-    return { hour: time.format('HH'), date: time.format('DD MM YYYY'), minute: time.format('mm') }
-  },
-  minimumFee(){
+  minimumFee() {
     return Template.instance().minimumFee.get()
   }
 });
 
 Template.createAuction.events({
-  'oninput .minimumJs'(ev, templ){
+  'change .picker' (ev, templ) {
+    templ.selected.set(moment(ev.target.value))
   },
-  'change .minimumJs'(ev, templ){
-    templ.minimumFee.set(ev.target.value*1*0.05)
+  'change .minimumJs' (ev, templ) {
+    templ.minimumFee.set(ev.target.value * 1 * 0.05)
     $('#confirmMinimum').modal()
   },
-  'click .cancelJs'(ev,templ){
+  'click .cancelJs' (ev, templ) {
     $('.minimumJs').val("")
   },
   'submit #createAuction' (event, templ) {
     event.preventDefault();
-    
-      const target = event.target;
-      const {
-        title: { value: tV },
-        date: { value: dateV },
-        hour: { value: hourV },
-        minute: { value: minuteV },
-        description: { value: dV },
-        type: { value: typeV },
-        minimum: { value: mV }
-      } = target
-      var date = moment(dateV, 'DD MM YYYY').hour(hourV).minute(minuteV)
-      console.log(date.toDate())
-      if (!date.isValid()) {
-        alert('invalid date, format (30 12 2019, hours 0-23 (15 is 3 pm)')
-        return
+
+    const target = event.target;
+    const {
+      title: { value: tV },
+      description: { value: dV },
+      type: { value: typeV },
+      minimum: { value: mV }
+    } = target
+    var date = templ.selected.get()
+    console.log(date.toDate())
+    if (!date.isValid()) {
+      return
+    }
+
+    const images = templ.currentUpload
+
+    var document = {
+      imageIds: images.map(x => x.doc._id),
+      title: tV,
+      type: typeV,
+      minimum: mV * 1,
+      description: dV
+    }
+
+    //if time is unchanged then don't set startDate
+    if (!templ.time.isSame(date) && date.isAfter(moment())) {
+      document.startDate = date.toDate()
+    }
+    console.log(document)
+    Meteor.call('auctions.insert', document, (err, res) => {
+      if (err) {
+        alert(err)
       }
-
-      const images = templ.currentUpload
-
-      var document = {
-        imageIds: images.map(x => x.doc._id),
-        title: tV,
-        type: typeV,
-        minimum: mV * 1,
-        description: dV
+      else {
+        FlowRouter.go('App.auction', { auctionId: res })
       }
-
-      //if time is unchanged then don't set startDate
-      if (!templ.time.isSame(date) && date.isAfter(moment())) {
-        document.startDate = date.toDate()
-      }
-
-      Meteor.call('auctions.insert', document, (err, res) => {
-        if (err) {
-          alert(err)
-        }
-        else {
-          FlowRouter.go('App.auction', { auctionId: res })
-        }
-      });
+    });
   },
   'click .jsRemovePic' (e, templ) {
     console.log(this)

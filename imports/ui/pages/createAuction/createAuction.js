@@ -26,10 +26,9 @@ Template.createAuction.onCreated(function() {
   this.numberOfRuns = 0
   this.minimumFee = new ReactiveVar()
 });
+
 Template.createAuction.onRendered(function() {
   const instance = this
-  console.log(instance.find('.picker'), flatpickr, this.time.unix())
-
   flatpickr(instance.find('.picker'), { enableTime: true, defaultDate: this.time.toDate() });
 })
 

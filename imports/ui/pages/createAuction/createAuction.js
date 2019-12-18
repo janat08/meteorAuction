@@ -5,15 +5,6 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import moment from 'moment'
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/flatpickr.css';
-// import customParseFormat from 'moment/plugin/customParseFormat'
-// moment.extend(customParseFormat)
-
-// import 'gijgo'
-//import './ginjgo.css'
-// import flatpickr from "flatpickr";
-//import './flatpicker.js'
-//gijgo freezes with recursive calls
-//flatpickr won't import styles, if styles imported manually nothing shows up
 
 Template.createAuction.onCreated(function() {
   SubsCache.subscribe('images.all')
